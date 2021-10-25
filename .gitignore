@@ -1,0 +1,29 @@
+# environment, distribution, packaging
+lib
+include
+lib64
+bin
+pyvenv.cfg
+
+# caching, optimized files
+*py[cod]
+__pycache__/
+
+# Secrets and the like
+.env
+.mnemonic
+
+# Hard storage for cardano wallet
+cardano-wallet
+
+# Hard storage for cardano node
+cardano-node
+
+# Used for ipc between cardano node and wallet
+ipc
+
+# misc
+*DS_Store
+
+# logs
+logs
