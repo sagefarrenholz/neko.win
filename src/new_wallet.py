@@ -23,9 +23,8 @@ def new_wallet(wallet_api, passphrase, verbose=False):
 
     if verbose:
         print('Successfully created wallet')
-    fd = os.open('.mnemonic', os.O_WRONLY | os.O_TRUNC | os.O_CREAT)
-    os.write(fd, str.encode(words))
-    os.close(fd)
+    with os.open('.mnemonic', os.O_WRONLY | os.O_TRUNC | os.O_CREAT) as fd:
+         os.write(fd, str.encode(words))
     print(
         '\033[1m' +
         """A BIP-0039 mnemonic recovery phrase has been generated for your new wallet in `.mnemonic`
