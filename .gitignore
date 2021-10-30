@@ -4,6 +4,7 @@ include
 lib64
 bin
 pyvenv.cfg
+share
 
 # caching, optimized files
 *py[cod]

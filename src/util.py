@@ -37,6 +37,7 @@ def entries(wallet_api: str, wallet_id: str, since: str, explorer_api: str = 'ht
             continue
 
         if "address" in transaction['inputs'][0]:
+            print(transaction['inputs'][0])
             address = transaction['inputs'][0]['address']
         else:
             res = requests.get(
@@ -63,7 +64,10 @@ def payout(wallet_api: str, wallet_id: str, passphrase: str, winner_wallet: str,
         'payments': [
             {
                 'address': winner_wallet,
-                'amount': amount
+                'amount': {
+                    'quantity': amount,
+                    'unit': 'lovelace',
+                }
             }
         ]
     })
@@ -91,42 +95,48 @@ def wallet_balance(wallet_api: str, wallet_id: str) -> int:
 def calc_pot(wallet_api: str, wallet_id: str, fee: float, dummy_id: str = 'addr1qy35zl8g9qf34akgeya8frrcd0kv2gud8r59huypsjq39wzyjp6e6as72as4rnsxlytshdsy5jq6x4yhzgq4x6rnq5ts3ktffg') -> int:
     """ Calculate the actual winnable pot amount (minus pot fee and transaction fees) in LOVELACE"""
     wallet_bal = wallet_balance(wallet_api, wallet_id)
-
+    effective_fee = max(int(wallet_bal * fee), 1000000)
     # Estimate payout transacation fee
     res = requests.post(wallet_api + 'wallets/' + str(wallet_id) + '/payment-fees', json={
         'payments': [
             {
                 'address': dummy_id,
-                'amount': str(int(wallet_bal * (1.0 - fee)))
+                'amount': {
+                    "quantity": max(int(wallet_bal - effective_fee), 0),
+                    "unit": "lovelace",
+                }
             }
         ]
     })
     if res.status_code != 202:
-        print(
+        print(res.json()['message'])
+        raise RuntimeError(
             'Something went wrong estimating trans fees. Status: ' +
             str(res.status_code))
-        print(res.json()['message'])
-        exit(-1)
 
     # Estimate pot_fee transacation fee
     res2 = requests.post(wallet_api + 'wallets/' + str(wallet_id) + '/payment-fees', json={
         'payments': [
             {
                 'address': dummy_id,
-                'amount': str(int(wallet_bal * fee))
+                'amount':   {
+                    "quantity": effective_fee,
+                    "unit": "lovelace",
+                }
             }
         ]
     })
     if res2.status_code != 202:
-        print(
+        print(res2.json()['message'])
+        raise RuntimeError(
             'Something went wrong estimating pot trans fees. Status: ' +
             str(res.status_code))
-        print(res.json()['message'])
-        exit(-1)
 
     payout_trans_fee = int(res.json()['estimated_max']['quantity'])
     pot_trans_fee = int(res2.json()['estimated_max']['quantity'])
-    return int(wallet_bal * (1.0 - fee)) - (payout_trans_fee + pot_trans_fee)
+    effective_jackpot = int(
+        wallet_bal - (effective_fee + 2 * (payout_trans_fee + pot_trans_fee)))
+    return [effective_jackpot, effective_fee, wallet_bal, 2 * (payout_trans_fee + pot_trans_fee)]
 
 
 def draw_winner(addresses_with_amounts: dict) -> str:
