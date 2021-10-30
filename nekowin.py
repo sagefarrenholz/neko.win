@@ -31,6 +31,7 @@ wallet_id = ''  # contains the workign wallet id
 app = Flask('nekowin')
 last_sweep = now()
 holdovers = dict()
+last_winner = ''
 # Flask api lottery amount
 
 
@@ -60,6 +61,7 @@ def lottery():
     temp_dict.update(entries(WALLET_API, wallet_id, last_sweep))
     temp_dict.update(holdovers)
     lottery_details['entries'] = temp_dict
+    lottery_details['last_winner'] = last_winner
 
     return jsonify(lottery_details)
 
@@ -108,6 +110,7 @@ def init():
 def start(wallet_id: str):
     """ Begin running neko win using the provided wallet """
     global last_sweep
+    global last_winner
     last_sweep = now()
     global holdovers  # used to hold entries for a skipped lottery
     holdovers = dict()
@@ -165,6 +168,8 @@ def start(wallet_id: str):
             continue
         else:
             holdovers.clear()
+
+        last_winner = winner_address
 
         print('Collecting a fee of ' + str(values[1]))
         print('Paying out a jackpot of ' + str(values[0]))
