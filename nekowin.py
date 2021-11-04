@@ -9,7 +9,7 @@ import os
 import time
 import threading
 
-from werkzeug.utils import send_from_directory
+from flask import send_from_directory
 
 from src.new_wallet import new_wallet
 from src.util import *
