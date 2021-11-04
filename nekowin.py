@@ -76,7 +76,7 @@ def lottery():
 
 def forkFlask():
     print("API Listening at http://localhost:" + str(LISTEN_PORT))
-    return threading.Thread(target=lambda: serve(host="0.0.0.0", port=LISTEN_PORT)).start()
+    return threading.Thread(target=lambda: serve(app, host="0.0.0.0", port=LISTEN_PORT)).start()
 
 
 def record(filename, to_write):
