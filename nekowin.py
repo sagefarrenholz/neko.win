@@ -10,6 +10,7 @@ import time
 import threading
 
 from flask import send_from_directory
+from waitress import serve
 
 from src.new_wallet import new_wallet
 from src.util import *
@@ -75,7 +76,7 @@ def lottery():
 
 def forkFlask():
     print("API Listening at http://localhost:" + str(LISTEN_PORT))
-    return threading.Thread(target=lambda: app.run(host="0.0.0.0", port=LISTEN_PORT, debug=False, use_reloader=False)).start()
+    return threading.Thread(target=lambda: serve(host="0.0.0.0", port=LISTEN_PORT)).start()
 
 
 def record(filename, to_write):
