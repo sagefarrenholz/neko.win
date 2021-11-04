@@ -30,11 +30,15 @@ LISTEN_PORT = os.environ.get('LISTEN_PORT') or 80
 lottery_details = {}  # contains details about the current lottery taking place
 wallet_id = ''  # contains the workign wallet id
 
-app = Flask('nekowin', static_folder='site')
+app = Flask('nekowin', static_folder='static', static_url_path='')
 last_sweep = now()
 holdovers = dict()
 last_winner = ''
 # Flask api lottery amount
+
+@app.route('/')
+def entry():
+    return app.send_static_file('index.html')
 
 @app.route("/lottery")
 def lottery():
