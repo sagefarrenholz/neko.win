@@ -75,8 +75,9 @@ def forkFlask():
 
 def record(filename, to_write):
     try:
-        with os.open('logs/' + filename, os.O_WRONLY | os.O_TRUNC | os.O_CREAT) as fd:
-            os.write(fd, str.encode(str(to_write)))
+        fd = os.open('logs/' + filename, os.O_WRONLY | os.O_TRUNC | os.O_CREAT) as fd:
+        os.write(fd, str.encode(str(to_write)))
+        os.close(fd)
     except Exception as e:
         print('Failed to record ' + str(filename))
         print(e)
