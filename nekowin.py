@@ -1,5 +1,5 @@
 #!./bin/python
-from logging import debug
+from logging import debug, error
 from flask import Flask, jsonify
 from dotenv import load_dotenv
 from flask import json
@@ -8,6 +8,8 @@ import requests
 import os
 import time
 import threading
+
+from werkzeug.utils import send_from_directory
 
 from src.new_wallet import new_wallet
 from src.util import *
@@ -34,6 +36,9 @@ holdovers = dict()
 last_winner = ''
 # Flask api lottery amount
 
+@app.route('/<path:path>')
+def site(path):
+    return send_from_directory('site', path)
 
 @app.route("/lottery")
 def lottery():
@@ -100,6 +105,11 @@ def init():
         exit(0)
 
     print('Using wallet with id ' + str(wallet_id))
+
+    try:
+        os.mkdir('logs')
+    except OSError as error:
+        print(error)
 
     # check for existing pot address in config if not create it
     #pot_address = create_address(WALLET_API)
